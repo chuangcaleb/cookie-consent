@@ -23,6 +23,7 @@ for f in $(ls migrations/*.sql | sort); do
   echo "🔹 Applying $f ..."
 
   mysql \
+    --ssl-mode=REQUIRED \
     -h "$DB_HOST" \
     -P "${DB_PORT:-3306}" \
     -u "$DB_USER" \
