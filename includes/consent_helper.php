@@ -3,11 +3,13 @@ require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/utils.php';
 
+use App\Config;
+
 function decline_consent(): void
 {
   $declinedAt = new DateTimeImmutable('now');
   setcookie(
-    CONSENT_COOKIE_DECLINE_NAME,
+    Config::DECLINE_COOKIE_NAME,
     json_encode(['declined_at' => $declinedAt->format(DateTime::ATOM)]),
     [
       'expires' => $declinedAt->modify('+1 day')->getTimestamp(),
@@ -48,7 +50,7 @@ function parse_expiry_cookie(string $cookie_name, string $initial_datetime_key, 
     return false;
   }
   // ## if cookie expired, return false
-  $expiry_datetime = $initial_datetime->add(new DateInterval('P' . $expiry_duration));
+  $expiry_datetime = $initial_datetime->add(new DateInterval($expiry_duration));
   if (new DateTimeImmutable('now') > $expiry_datetime) {
 
     clear_cookie($cookie_name);
@@ -66,11 +68,11 @@ function parse_expiry_cookie(string $cookie_name, string $initial_datetime_key, 
  * @param int $version
  * @return array assoc with guid, accepted_at, version
  */
-function accept_consent(PDO $pdo, int $version = CONSENT_COOKIE_VERSION): array
+function accept_consent(PDO $pdo, int $version = Config::CONSENT_COOKIE_VERSION): array
 {
   $guid = generate_guid_v4();
   $acceptedAt = new DateTimeImmutable('now');
-  $expiresAt = $acceptedAt->add(new DateInterval('P' . CONSENT_COOKIE_EXPIRE_YEARS . 'Y'));
+  $expiresAt = $acceptedAt->add(new DateInterval(Config::CONSENT_COOKIE_EXPIRE_INTERVAL));
 
   // TODO: Set cookie (path=/ so it's site-wide). For local dev, secure=false.
   // TODO: samesite too
@@ -84,7 +86,7 @@ function accept_consent(PDO $pdo, int $version = CONSENT_COOKIE_VERSION): array
     'samesite' => 'Lax' // or 'Strict'/'None' depending on needs
   ];
 
-  setcookie(CONSENT_COOKIE_NAME, json_encode([
+  setcookie(Config::CONSENT_COOKIE_NAME, json_encode([
     'guid' => $guid,
     'accepted_at' => $acceptedAt->format(DateTime::ATOM),
     'version' => $version
@@ -110,11 +112,11 @@ function accept_consent(PDO $pdo, int $version = CONSENT_COOKIE_VERSION): array
 
 function verify_consent(PDO $pdo): bool
 {
-  $cookie = parse_expiry_cookie(CONSENT_COOKIE_NAME, 'accepted_at', CONSENT_COOKIE_EXPIRE_YEARS . 'Y');
+  $cookie = parse_expiry_cookie(Config::CONSENT_COOKIE_NAME, 'accepted_at', Config::CONSENT_COOKIE_EXPIRE_INTERVAL);
 
   // if invalid cookie, or missing extra keys, then clear it and return false
   if (!$cookie || empty($cookie['guid']) || empty($cookie['version'])) {
-    clear_cookie(CONSENT_COOKIE_NAME);
+    clear_cookie(Config::CONSENT_COOKIE_NAME);
     return false;
   }
 
@@ -125,21 +127,21 @@ function verify_consent(PDO $pdo): bool
 
   // if db has no record, then invalidate local cookie
   if (!$row) {
-    clear_cookie(CONSENT_COOKIE_NAME);
+    clear_cookie(Config::CONSENT_COOKIE_NAME);
     return false; // no record
   }
 
   // check db expiry (trust server over client)
   $server_accepted_at = new DateTimeImmutable($row['accepted_at']);
-  $server_expired_at = $server_accepted_at->add(new DateInterval('P' . CONSENT_COOKIE_EXPIRE_YEARS . 'Y'));
+  $server_expired_at = $server_accepted_at->add(new DateInterval(Config::CONSENT_COOKIE_EXPIRE_INTERVAL));
   if (new DateTimeImmutable('now') > $server_expired_at) {
-    clear_cookie(CONSENT_COOKIE_NAME);
+    clear_cookie(Config::CONSENT_COOKIE_NAME);
     return false; // expired
   }
 
   // check version match
   if ((int) $cookie['version'] !== (int) $row['version']) {
-    clear_cookie(CONSENT_COOKIE_NAME);
+    clear_cookie(Config::CONSENT_COOKIE_NAME);
     return false; // outdated version
   }
 
@@ -153,12 +155,12 @@ function verify_consent(PDO $pdo): bool
 function verify_is_resolved_consent(PDO $pdo): bool
 {
   // first, check for declined cookie
-  $is_cookie_declined = parse_expiry_cookie(CONSENT_COOKIE_DECLINE_NAME, 'declined_at', CONSENT_COOKIE_DECLINE_EXPIRE_DAYS . 'D');
+  $is_cookie_declined = parse_expiry_cookie(Config::DECLINE_COOKIE_NAME, 'declined_at', Config::DECLINE_COOKIE_EXPIRE_INTERVAL);
   $is_cookie_accepted = verify_consent($pdo);
 
   // edge case: if both cookies somehow exist, assume declined
   if ($is_cookie_declined && $is_cookie_accepted) {
-    clear_cookie(CONSENT_COOKIE_NAME);
+    clear_cookie(Config::CONSENT_COOKIE_NAME);
   }
 
   // else: if either cookie exists and is valid, then don't show prompt

@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../includes/consent_helper.php';
+use App\Config;
 
 // Early reject, if not `POST` method
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -11,7 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 // TODO: Optionally verify CSRF/token if you have one?
 try {
-  $result = accept_consent($pdo, CONSENT_COOKIE_VERSION);
+  $result = accept_consent($pdo, Config::CONSENT_COOKIE_VERSION);
   header('Content-Type: application/json');
   echo json_encode(['status' => 'ok', 'data' => $result]);
 } catch (Exception $e) {
