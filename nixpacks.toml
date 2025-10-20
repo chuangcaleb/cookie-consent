@@ -1,0 +1,17 @@
+# nixpacks.toml
+[phases.setup]
+nixPkgs = [
+  "php",
+  "php-mysqli",
+  "php-pdo",
+  "php-pdo_mysql",
+  "mysql-client"
+]
+
+[phases.install]
+cmds = [
+  "echo '✅ Installing PHP dependencies complete.'"
+]
+
+[phases.start]
+cmd = "bash scripts/migrate.sh && php -S 0.0.0.0:8080 -t public"
