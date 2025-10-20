@@ -68,3 +68,7 @@ header {
 #declineBtn {
   background-color: var(--surface-4);
 }
+
+button + button {
+  margin-inline-start: var(--size-2);
+}
