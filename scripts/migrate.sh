@@ -10,7 +10,7 @@ if [ -f .env ]; then
 fi
 
 # Validate required variables
-REQUIRED_VARS=("DB_HOST" "DB_PORT" "DB_USER" "DB_PASS" "DB_NAME")
+REQUIRED_VARS=("DB_HOST" "DB_PORT" "DB_USER" "DB_PASS")
 for var in "${REQUIRED_VARS[@]}"; do
   if [ -z "${!var}" ]; then
     echo "❌ Missing required environment variable: $var"
@@ -23,6 +23,8 @@ for f in $(ls migrations/*.sql | sort); do
   echo "🔹 Applying $f ..."
 
   mysql \
+    --ssl=OFF \
+    --ssl-verify-server-cert=OFF \
     -h "$DB_HOST" \
     -P "${DB_PORT:-3306}" \
     -u "$DB_USER" \
