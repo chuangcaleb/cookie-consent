@@ -31,35 +31,44 @@ function decline_consent(): void
   );
 }
 
-function parse_decline_consent_cookie(): bool
+
+/**
+ * Check if expiry cookie exists and is valid.
+ * Returns false if not present or expired.
+ */
+function parse_expiry_cookie(string $cookie_name, string $initial_datetime_key, string $expiry_duration): array|bool
 {
-  // if missing cookie
-  if (!isset($_COOKIE[CONSENT_COOKIE_DECLINE_NAME]))
-    return false;
-
-  $data = json_decode($_COOKIE[CONSENT_COOKIE_DECLINE_NAME], true);
-
-  // if malformed (missing property)
-  if (!$data || empty($data['declined_at'])) {
-    clear_cookie(CONSENT_COOKIE_DECLINE_NAME);
+  // if missing cookie, return false
+  if (!isset($_COOKIE[$cookie_name])) {
     return false;
   }
-  // parse declined_at and check expiry
+
+  $data = json_decode($_COOKIE[$cookie_name], true);
+
+  // if malformed (or missing property), return false
+  if (!is_array($data) || empty($data[$initial_datetime_key])) {
+    clear_cookie($cookie_name);
+    return false;
+  }
+
+  // # check expiry
+  // ## if malformed (invalid json value), return false
   try {
-    $declined_at = new DateTimeImmutable($data['declined_at']);
+    $initial_datetime = new DateTimeImmutable($data[$initial_datetime_key]);
   } catch (Exception $e) {
-    // if malformed (invalid declined_at)
-    clear_cookie(CONSENT_COOKIE_DECLINE_NAME);
+    clear_cookie($cookie_name);
+
     return false;
   }
-  $expires = $declined_at->add(new DateInterval('P' . CONSENT_COOKIE_DECLINE_EXPIRE_DAYS . 'D'));
-  // if cookie expired
-  if (new DateTimeImmutable('now') > $expires) {
-    clear_cookie(CONSENT_COOKIE_DECLINE_NAME);
+  // ## if cookie expired, return false
+  $expiry_datetime = $initial_datetime->add(new DateInterval('P' . $expiry_duration));
+  if (new DateTimeImmutable('now') > $expiry_datetime) {
+
+    clear_cookie($cookie_name);
     return false;
   }
-  // else, return true
-  return true; // valid declined cookie
+  // else valid declined cookie, return true
+  return $data;
 }
 
 
@@ -111,45 +120,15 @@ function accept_consent(PDO $pdo, int $version = CONSENT_COOKIE_VERSION): array
   ];
 }
 
-/**
- * Check if consent cookie exists and is valid.
- * Returns false if not present or expired.
- */
-function parse_consent_cookie(): array|false
-{
-  // if no cookie, then early exit
-  if (!isset($_COOKIE[CONSENT_COOKIE_NAME])) {
-    return false;
-  }
-
-  $data = json_decode($_COOKIE[CONSENT_COOKIE_NAME], true);
-
-  // if invalid cookie structure, then early exit
-  if (!is_array($data) || empty($data['guid']) || empty($data['accepted_at'])) {
-    return false;
-  }
-
-  // parse accepted_at and check expiry
-  try {
-    $accepted_at = new DateTimeImmutable($data['accepted_at']);
-  } catch (Exception $e) {
-    return false;
-  }
-  $expires = $accepted_at->add(new DateInterval('P' . CONSENT_COOKIE_EXPIRE_YEARS . 'Y'));
-  if (new DateTimeImmutable('now') > $expires)
-    return false; // cookie expired
-
-  // else, return parsed cookie
-  return $data;
-}
 
 function verify_consent(PDO $pdo): bool
 {
-  $cookie = parse_consent_cookie();
+  $cookie = parse_expiry_cookie(CONSENT_COOKIE_NAME, 'accepted_at', CONSENT_COOKIE_EXPIRE_YEARS . 'Y');
 
-  if (!$cookie) {
+  // if invalid cookie, or missing extra keys, then clear it and return false
+  if (!$cookie || empty($cookie['guid']) || empty($cookie['version'])) {
     clear_cookie(CONSENT_COOKIE_NAME);
-    return false; // missing cookie
+    return false;
   }
 
   // Lookup in DB
@@ -182,10 +161,10 @@ function verify_consent(PDO $pdo): bool
  * Verify consent both client + DB side.
  * Returns boolean, false if invalid or missing.
  */
-function verify_prompt_consent(PDO $pdo): bool
+function verify_is_resolved_consent(PDO $pdo): bool
 {
   // first, check for declined cookie
-  $is_cookie_declined = parse_decline_consent_cookie();
+  $is_cookie_declined = parse_expiry_cookie(CONSENT_COOKIE_DECLINE_NAME, 'declined_at', CONSENT_COOKIE_DECLINE_EXPIRE_DAYS . 'D');
   $is_cookie_accepted = verify_consent($pdo);
 
   // edge case: if both cookies somehow exist, assume declined
@@ -194,7 +173,7 @@ function verify_prompt_consent(PDO $pdo): bool
   }
 
   // else: if either cookie exists and is valid, then don't show prompt
-  return !($is_cookie_declined || $is_cookie_accepted);
+  return $is_cookie_declined || $is_cookie_accepted;
 }
 
 /**

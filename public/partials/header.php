@@ -19,9 +19,9 @@
 
     <?php
     require_once __DIR__ . '/../../includes/consent_helper.php';
-    $prompt_consent = verify_prompt_consent($pdo);
+    $is_resolved_consent = verify_is_resolved_consent($pdo);
     ?>
-    <?php if ($prompt_consent === true): ?>
+    <?php if ($is_resolved_consent === false): ?>
       <div id="consent-box"
         style="position: fixed; bottom: 10px; left: 10px; right: 10px; background: #fff; border: 1px solid #ddd; padding: 16px;">
         <p>Cookies are necessary for this website to function properly, for performance measurement, and to provide you
