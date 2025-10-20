@@ -10,6 +10,5 @@ CREATE TABLE IF NOT EXISTS cookie_consents (
   accepted_at DATETIME NOT NULL,
   version TINYINT UNSIGNED NOT NULL,
   cookie_expires_at DATETIME NOT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   UNIQUE KEY ux_guid_accepted (guid)
 );
