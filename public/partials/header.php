@@ -9,13 +9,13 @@ Config::init();
 
 <head>
   <meta charset="UTF-8">
-  <title><?= $pageTitle ?? 'My PHP Site' ?></title>
+  <title><?= $pageTitle ?? 'C is for Cookie' ?></title>
   <link rel="stylesheet" href="/assets/index.css">
 </head>
 
 <body>
   <header>
-    <h1>My PHP Site</h1>
+    <h1>C is for Cookie</h1>
     <nav>
       <a href="/index.php">Home</a>
       <a href="/about.php">About</a>
