@@ -19,7 +19,7 @@
 
     <?php
     require_once __DIR__ . '/../../includes/consent_helper.php';
-    $consent = get_consent_from_cookie();
+    $consent = validate_consent($pdo);
     ?>
     <?php if ($consent === false): ?>
       <div id="consent-box"

@@ -3,8 +3,7 @@ require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/db.php';
 
 /**
- * Generate a GUID/UUID v4 string (36 chars)
- * Uses random_bytes for cryptographic randomness and formats as UUID v4
+ * Generate a cryptographically secure GUID/UUID v4 string (36 chars)
  */
 function generate_guid_v4(): string
 {
@@ -35,10 +34,10 @@ function accept_consent(PDO $pdo, int $version = CONSENT_COOKIE_VERSION): array
   $cookieOptions = [
     'expires' => $expiresAt->getTimestamp(),
     'path' => '/',
-    'domain' => '',            // leave blank for current host
-    'secure' => false,         // set true for HTTPS in prod
+    'domain' => '', // leave blank for current host
+    'secure' => isset($_SERVER['HTTPS']), // set true for HTTPS in prod
     'httponly' => true,
-    'samesite' => 'Lax'        // or 'Strict'/'None' depending on needs
+    'samesite' => 'Lax' // or 'Strict'/'None' depending on needs
   ];
 
   setcookie(CONSENT_COOKIE_NAME, json_encode([
@@ -70,43 +69,91 @@ function accept_consent(PDO $pdo, int $version = CONSENT_COOKIE_VERSION): array
  * Check if consent cookie exists and is valid.
  * Returns false if not present or expired.
  */
-function get_consent_from_cookie()
+function parse_consent_cookie(): array|false
 {
   // if no cookie, then early exit
   if (!isset($_COOKIE[CONSENT_COOKIE_NAME])) {
     return false;
   }
 
-  $raw = $_COOKIE[CONSENT_COOKIE_NAME];
-  $data = json_decode($raw, true);
+  $data = json_decode($_COOKIE[CONSENT_COOKIE_NAME], true);
 
   // if invalid cookie structure, then early exit
   if (!is_array($data) || empty($data['guid']) || empty($data['accepted_at'])) {
     // TODO: do I need to clear the cookie entry?
     return false;
   }
-  // Parse accepted_at and check expiry
+
+  // parse accepted_at and check expiry
   try {
     $accepted = new DateTimeImmutable($data['accepted_at']);
   } catch (Exception $e) {
     return false;
   }
 
+  // check for expiry
   $expires = $accepted->add(new DateInterval('P' . CONSENT_COOKIE_EXPIRE_YEARS . 'Y'));
-
-  if (new DateTimeImmutable('now') > $expires) {
+  if (new DateTimeImmutable('now') > $expires)
     return false; // cookie expired
-  }
+
+  // else, return parsed cookie
   return $data;
 }
 
 /**
- * Optionally: check DB for existence of GUID (returns DB row or false)
+ * Verify consent both client + DB side.
+ * Returns array if valid, or false if invalid or missing.
  */
-function find_consent_by_guid(PDO $pdo, string $guid)
+function validate_consent(PDO $pdo): array|false
 {
-  $sql = "SELECT * FROM cookie_consents WHERE guid = :guid LIMIT 1";
-  $stmt = $pdo->prepare($sql);
-  $stmt->execute([':guid' => $guid]);
-  return $stmt->fetch() ?: false;
+  $cookie = parse_consent_cookie();
+  if (!$cookie) {
+    clear_consent_cookie();
+    return false;
+  }
+
+  // Lookup in DB
+  $stmt = $pdo->prepare("SELECT * FROM cookie_consents WHERE guid = :guid LIMIT 1");
+  $stmt->execute([':guid' => $cookie['guid']]);
+  $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+  // if db has no record, then invalidate local cookie
+  if (!$row) {
+    clear_consent_cookie();
+    return false;
+  }
+
+  // check db expiry (trust server over client)
+  if (new DateTimeImmutable('now') > new DateTimeImmutable($row['cookie_expires_at'])) {
+    clear_consent_cookie();
+    return false;
+  }
+
+  // check version match
+  if ((int) $cookie['version'] !== (int) $row['version']) {
+    clear_consent_cookie();
+    return false;
+  }
+
+  return $row; // consent is valid
+}
+
+/**
+ * Clear the client-side consent cookie
+ */
+function clear_consent_cookie(): void
+{
+  setcookie(
+    CONSENT_COOKIE_NAME,
+    '',
+    [
+      'expires' => time() - 3600,
+      'path' => '/',
+      'domain' => '',
+      'secure' => isset($_SERVER['HTTPS']),
+      'httponly' => true,
+      'samesite' => 'Lax',
+    ]
+  );
+  unset($_COOKIE[CONSENT_COOKIE_NAME]);
 }
