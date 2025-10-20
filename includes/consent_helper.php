@@ -30,6 +30,7 @@ function accept_consent(PDO $pdo, int $version = CONSENT_COOKIE_VERSION): array
   $expiresAt = $acceptedAt->add(new DateInterval('P' . CONSENT_COOKIE_EXPIRE_YEARS . 'Y'));
 
   // TODO: Set cookie (path=/ so it's site-wide). For local dev, secure=false.
+  // TODO: samesite too
   // For production use secure=true and proper domain.
   $cookieOptions = [
     'expires' => $expiresAt->getTimestamp(),

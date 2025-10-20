@@ -45,7 +45,7 @@ mysql -u root -p < migrations/001_create_consent_table.sql
 
 ### Launching frontend
 
-Serve phpmyadmin (installed via brew)
+Optionally serve phpmyadmin (installed via brew)
 
 ```shell
 cd /opt/homebrew/share/phpmyadmin
