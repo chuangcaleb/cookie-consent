@@ -23,7 +23,7 @@ final class Config
       'host' => self::get('DB_HOST', '127.0.0.1'),
       'user' => self::get('DB_USER', 'root'),
       'pass' => self::get('DB_PASS', ''),
-      'name' => 'cookie_consents',
+      'name' => 'cookie_consent',
     ];
   }
 
