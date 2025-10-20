@@ -1,3 +1,9 @@
+<?php
+// Initialize global settings
+require_once __DIR__ . '/../../includes/config.php';
+use App\Config;
+Config::init();
+?>
 <!DOCTYPE html>
 <html lang="en">
 
