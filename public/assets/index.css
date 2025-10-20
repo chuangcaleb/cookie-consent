@@ -9,11 +9,11 @@
 
 body {
   display: grid;
-  grid-template-columns: var(--size-8) calc(100% - 2 * var(--size-8)) var(
-      --size-8
+  --gutter: max(var(--size-fluid-1), 5vw);
+  grid-template-columns: var(--gutter) calc(100% - 2 * var(--gutter)) var(
+      --gutter
     );
   grid-template-rows: auto 1fr auto;
-  /* row-gap: var(--size-fluid-1); */
   justify-items: flex-start;
 
   min-height: 100vh;
@@ -32,9 +32,10 @@ main {
 
 header {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-self: stretch;
-  gap: var(--size-6);
+  column-gap: var(--size-6);
 
   position: sticky;
   top: 0;
