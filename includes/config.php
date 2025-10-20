@@ -21,7 +21,6 @@ final class Config
   {
     return [
       'host' => self::get('DB_HOST', '127.0.0.1'),
-      'name' => self::get('DB_NAME', 'cookie_consent'),
       'user' => self::get('DB_USER', 'root'),
       'pass' => self::get('DB_PASS', ''),
     ];
