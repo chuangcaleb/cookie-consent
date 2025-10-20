@@ -10,26 +10,25 @@ Config::init();
 <head>
   <meta charset="UTF-8">
   <title><?= $pageTitle ?? 'My PHP Site' ?></title>
-  <link rel="stylesheet" href="/assets/css/style.css">
+  <link rel="stylesheet" href="/assets/index.css">
 </head>
 
 <body>
   <header>
     <h1>My PHP Site</h1>
     <nav>
-      <a href="/index.php">Home</a> |
+      <a href="/index.php">Home</a>
       <a href="/about.php">About</a>
     </nav>
   </header>
-  <main>
+  <main class="flow">
 
     <?php
     require_once __DIR__ . '/../../includes/consent_helper.php';
     $is_resolved_consent = verify_is_resolved_consent($pdo);
     ?>
     <?php if ($is_resolved_consent === false): ?>
-      <div id="consent-box"
-        style="position: fixed; bottom: 10px; left: 10px; right: 10px; background: #fff; border: 1px solid #ddd; padding: 16px;">
+      <div id="consent-box" class="flow">
         <p>Cookies are necessary for this website to function properly, for performance measurement, and to provide you
           with the best experience.</p>
         <p>
