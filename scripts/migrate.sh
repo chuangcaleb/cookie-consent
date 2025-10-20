@@ -23,8 +23,6 @@ for f in $(ls migrations/*.sql | sort); do
   echo "🔹 Applying $f ..."
 
   mysql \
-    --ssl=OFF \
-    --ssl-verify-server-cert=OFF \
     -h "$DB_HOST" \
     -P "${DB_PORT:-3306}" \
     -u "$DB_USER" \
@@ -33,4 +31,3 @@ for f in $(ls migrations/*.sql | sort); do
 done
 
 echo "✅ All migrations applied successfully."
-but locall
