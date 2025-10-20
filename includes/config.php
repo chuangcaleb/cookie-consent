@@ -10,6 +10,7 @@ define('DB_PASS', 'FTXNNE^t&VFHf!6B2HCybmp*YtMoYyR');
 define('CONSENT_COOKIE_NAME', 'consent_cookie');
 define('CONSENT_COOKIE_VERSION', 1);
 define('CONSENT_COOKIE_EXPIRE_YEARS', 1);
+define('CONSENT_COOKIE_RETENTION_DAYS', 90);
 
 // Timezone - Important for reproducible datetime
 date_default_timezone_set('Asia/Kuala_Lumpur');

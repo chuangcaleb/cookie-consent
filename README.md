@@ -57,3 +57,17 @@ Serve frontend site
 ```shell
 php -S localhost:8000 -t public
 ```
+
+### Cleanup
+
+Cleanup expired cookie consent records
+
+- we want to clear records: keeping indefinitely violates data minimization principle + bloats storage
+- but deleting immediately is problematic
+  - may break auditability — we need a brief retention window for compliance logs
+  - may cause unnecessary writes + race conditions (especially on every client expire)
+- solution: script; manually or cron job
+
+```shell
+php scripts/cleanup_expired_consents.php
+```
