@@ -9,6 +9,6 @@ CREATE TABLE IF NOT EXISTS cookie_consents (
   guid CHAR(36) NOT NULL,
   accepted_at DATETIME NOT NULL,
   version TINYINT UNSIGNED NOT NULL,
-  cookie_expires_at DATETIME NOT NULL,
+  expires_at DATETIME GENERATED ALWAYS AS (accepted_at + INTERVAL 1 YEAR) STORED,
   UNIQUE KEY ux_guid_accepted (guid)
 );

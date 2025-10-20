@@ -20,7 +20,7 @@ function generate_guid_v4(): string
  *
  * @param PDO $pdo
  * @param int $version
- * @return array assoc with guid, accepted_at, expires_at
+ * @return array assoc with guid, accepted_at, version
  */
 function accept_consent(PDO $pdo, int $version = CONSENT_COOKIE_VERSION): array
 {
@@ -47,20 +47,18 @@ function accept_consent(PDO $pdo, int $version = CONSENT_COOKIE_VERSION): array
   ]), $cookieOptions);
 
   // Insert into DB using prepared statement
-  $sql = "INSERT INTO cookie_consents (guid, accepted_at, version, cookie_expires_at)
-            VALUES (:guid, :accepted_at, :version, :cookie_expires_at)";
+  $sql = "INSERT INTO cookie_consents (guid, accepted_at, version)
+            VALUES (:guid, :accepted_at, :version)";
   $stmt = $pdo->prepare($sql);
   $stmt->execute([
     ':guid' => $guid,
     ':accepted_at' => $acceptedAt->format('Y-m-d H:i:s'),
     ':version' => $version,
-    ':cookie_expires_at' => $expiresAt->format('Y-m-d H:i:s')
   ]);
 
   return [
     'guid' => $guid,
     'accepted_at' => $acceptedAt->format(DateTime::ATOM),
-    'cookie_expires_at' => $expiresAt->format(DateTime::ATOM),
     'version' => $version
   ];
 }
@@ -124,7 +122,7 @@ function validate_consent(PDO $pdo): array|false
   }
 
   // check db expiry (trust server over client)
-  if (new DateTimeImmutable('now') > new DateTimeImmutable($row['cookie_expires_at'])) {
+  if (new DateTimeImmutable('now') > new DateTimeImmutable($row['expires_at'])) {
     clear_consent_cookie();
     return false;
   }
