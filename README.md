@@ -44,7 +44,17 @@ FLUSH PRIVILEGES;
 Apply db migration
 
 ```shell
-mysql -u root -p < migrations/001_create_consent_table.sql
+bash scripts/migrate.sh
+```
+
+These following lines were required on my cloud build runner. MySQL uses a valid TLS connection, but not a chain signed by the container’s CA list.
+
+On your local machine, these lines may throw errors, because of mismatching MySQL version. They are safe to remove.
+
+```shell
+# scripts/migrate.sh
+--ssl=OFF \
+--ssl-verify-server-cert=OFF \
 ```
 
 ### 🚀 Launching frontend
