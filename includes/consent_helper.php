@@ -130,7 +130,9 @@ function verify_consent(PDO $pdo): bool
   }
 
   // check db expiry (trust server over client)
-  if (new DateTimeImmutable('now') > new DateTimeImmutable($row['expires_at'])) {
+  $server_accepted_at = new DateTimeImmutable($row['accepted_at']);
+  $server_expired_at = $server_accepted_at->add(new DateInterval('P' . CONSENT_COOKIE_EXPIRE_YEARS . 'Y'));
+  if (new DateTimeImmutable('now') > $server_expired_at) {
     clear_cookie(CONSENT_COOKIE_NAME);
     return false; // expired
   }
