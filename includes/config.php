@@ -1,6 +1,9 @@
 <?php
 namespace App;
 
+require_once __DIR__ . '/utils.php';
+load_env(__DIR__ . '/../.env');
+
 /**
  * Central application configuration constants.
  *
@@ -9,11 +12,21 @@ namespace App;
  */
 final class Config
 {
-  // ─── Database ────────────────────────────────────────────────
-  public const DB_HOST = '127.0.0.1';
-  public const DB_NAME = 'cookie_consent';
-  public const DB_USER = 'root';
-  public const DB_PASS = 'FTXNNE^t&VFHf!6B2HCybmp*YtMoYyR';
+  public static function get(string $key, $default = null)
+  {
+    return $_ENV[$key] ?? $_SERVER[$key] ?? $default;
+  }
+
+  public static function db(): array
+  {
+    return [
+      'host' => self::get('DB_HOST', '127.0.0.1'),
+      'name' => self::get('DB_NAME', 'cookie_consent'),
+      'user' => self::get('DB_USER', 'root'),
+      'pass' => self::get('DB_PASS', ''),
+    ];
+  }
+
 
   // ─── Consent Cookies ─────────────────────────────────────────
   public const CONSENT_COOKIE_NAME = 'consent_cookie_accepted';

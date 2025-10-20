@@ -16,6 +16,10 @@ Launch mysql
 brew services start mysql
 ```
 
+### 🏞️ Environment variables
+
+Could use `phpdotenv` for env vars, but opted for simple + manual reading. See `.env.example` for required environment variables. Ensure a `.env` file, no matter the environment.
+
 ### 🗃️ Setup DB
 
 Set password for MySQL default user
