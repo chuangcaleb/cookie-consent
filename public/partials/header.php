@@ -1,3 +1,12 @@
+<?php
+// Initialize global settings
+require_once __DIR__ . '/../../includes/config.php';
+use App\Config;
+Config::init();
+
+require_once __DIR__ . '/../../includes/consent_helper.php';
+$is_resolved_consent = verify_is_resolved_consent($pdo);
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -21,15 +30,6 @@
     </nav>
   </header>
   <main class="flow">
-    <?php
-    // Initialize global settings
-    require_once __DIR__ . '/../../includes/config.php';
-    use App\Config;
-    Config::init();
-
-    require_once __DIR__ . '/../../includes/consent_helper.php';
-    $is_resolved_consent = verify_is_resolved_consent($pdo);
-    ?>
     <?php if ($is_resolved_consent === false): ?>
       <div id="consent-box" class="flow">
         <p>Cookies are necessary for this website to function properly, for performance measurement, and to provide you
