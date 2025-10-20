@@ -1,8 +1,8 @@
 # Cookie Consent
 
-## Running the app locally
+## 🏃 Running the app locally
 
-### First-time install
+### 📥 First-time install
 
 If you are on Mac, I prefer to use brew
 
@@ -16,7 +16,7 @@ Launch mysql
 brew services start mysql
 ```
 
-### Setup DB
+### 🗃️ Setup DB
 
 Set password for MySQL default user
 
@@ -43,7 +43,7 @@ Apply db migration
 mysql -u root -p < migrations/001_create_consent_table.sql
 ```
 
-### Launching frontend
+### 🚀 Launching frontend
 
 Optionally serve phpmyadmin (installed via brew)
 
@@ -58,7 +58,7 @@ Serve frontend site
 php -S localhost:8000 -t public
 ```
 
-### Cleanup
+### 🧹 Cleanup
 
 Cleanup expired cookie consent records
 

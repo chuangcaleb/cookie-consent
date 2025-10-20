@@ -7,9 +7,13 @@ define('DB_USER', 'root');
 define('DB_PASS', 'FTXNNE^t&VFHf!6B2HCybmp*YtMoYyR');
 
 // Cookie settings
-define('CONSENT_COOKIE_NAME', 'consent_cookie');
+define('CONSENT_COOKIE_NAME', 'consent_cookie_accepted');
 define('CONSENT_COOKIE_VERSION', 1);
 define('CONSENT_COOKIE_EXPIRE_YEARS', 1);
+// -
+define('CONSENT_COOKIE_DECLINE_NAME', 'consent_cookie_declined');
+define('CONSENT_COOKIE_DECLINE_EXPIRE_DAYS', 1);
+// -
 define('CONSENT_COOKIE_RETENTION_DAYS', 90);
 
 // Timezone - Important for reproducible datetime
