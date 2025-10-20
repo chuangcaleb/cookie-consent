@@ -4,10 +4,10 @@
 
 ### First-time install
 
-If you are on Mac, prefer to use brew
+If you are on Mac, I prefer to use brew
 
 ```shell
-brew install php mysql phpmyadmi
+brew install php mysql phpmyadmin
 ```
 
 Launch mysql
@@ -31,8 +31,8 @@ FLUSH PRIVILEGES;
 EXIT;
 # but instead of using `root`, you should create dev user
 # run in mysql (or via phpMyAdmin ui)
-CREATE USER 'dev'@'localhost' IDENTIFIED BY 'devpass';
-GRANT INSERT, SELECT ON myprojectdb.* TO 'dev'@'localhost';
+CREATE USER 'dev'@'localhost' IDENTIFIED BY 'YourStrongPassword123!';
+GRANT INSERT, SELECT ON cookie_consent.* TO 'dev'@'localhost';
 FLUSH PRIVILEGES;
 
 ```
