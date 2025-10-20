@@ -24,7 +24,11 @@
     <?php if ($consent === false): ?>
       <div id="consent-box"
         style="position: fixed; bottom: 10px; left: 10px; right: 10px; background: #fff; border: 1px solid #ddd; padding: 16px;">
-        <p>We use cookies. By clicking accept you consent to our cookie policy.</p>
+        <p>Cookies are necessary for this website to function properly, for performance measurement, and to provide you
+          with the best experience.</p>
+        <p>
+          By continuing to access or use this site, you acknowledge and consent to our use of cookies in accordance with
+          our <a href="/terms.php">Terms & Conditions</a> and <a href="privacy-policy.php">Privacy Statement</a>.</p>
         <button id="acceptBtn">Accept</button>
       </div>
 
