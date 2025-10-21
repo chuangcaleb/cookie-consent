@@ -28,6 +28,7 @@ body {
 
 main {
   height: 100%;
+  padding-block: var(--size-fluid-2);
 }
 
 header {
@@ -55,8 +56,11 @@ header {
 
 #consent-box {
   position: fixed;
-  inset-inline-start: var(--size-3);
-  inset-block-end: var(--size-3);
+  --gutter: var(--size-3);
+  inset-inline-start: var(--gutter);
+  margin-right: var(--gutter);
+  inset-block-end: var(--gutter);
+
   border: var(--border-size-1) solid var(--surface-3);
   border-radius: var(--radius-2);
   padding: var(--size-3);
