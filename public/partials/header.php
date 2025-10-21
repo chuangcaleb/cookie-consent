@@ -3,6 +3,12 @@
 require_once __DIR__ . '/../../includes/config.php';
 use App\Config;
 Config::init();
+
+require_once __DIR__ . '/../../includes/consent_helper.php';
+$is_resolved_consent = verify_is_resolved_consent($pdo);
+
+$currentPath = strtolower(trim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), '/'));
+$excluded = ['terms.php', 'privacy.php'];
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -19,7 +25,6 @@ Config::init();
 </head>
 
 <body>
-  <?php include 'partials/consent_prompt.php'; ?>
   <header>
     <h1>C is for Cookie</h1>
     <nav>
@@ -27,4 +32,7 @@ Config::init();
       <a href="/about.php">About</a>
     </nav>
   </header>
+  <?php if ($is_resolved_consent === false && !in_array($currentPath, $excluded, true)): ?>
+    <?php include 'partials/consent_prompt.php'; ?>
+  <?php endif; ?>
   <main class="flow">
