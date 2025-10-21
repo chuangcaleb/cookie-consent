@@ -94,3 +94,7 @@ body:has(#consent-box) {
 button + button {
   margin-inline-start: var(--size-2);
 }
+
+.nowrap {
+  text-wrap-mode: nowrap;
+}
