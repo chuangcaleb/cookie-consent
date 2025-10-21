@@ -32,7 +32,4 @@ $excluded = ['terms.php', 'privacy.php'];
       <a href="/about.php">About</a>
     </nav>
   </header>
-  <?php if ($is_resolved_consent === false && !in_array($currentPath, $excluded, true)): ?>
-    <?php include 'partials/consent_prompt.php'; ?>
-  <?php endif; ?>
   <main class="flow">
