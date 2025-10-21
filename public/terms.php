@@ -2,7 +2,7 @@
 $pageTitle = "Terms and Conditions";
 include 'partials/header.php';
 ?>
-<h1>Terms and Conditions</h1>
+<h2>Terms and Conditions</h2>
 <p>Ullamco occaecat aute reprehenderit pariatur velit reprehenderit eu laborum duis pariatur occaecat qui nostrud.
   Consectetur nisi sit eu excepteur anim nostrud fugiat qui duis proident irure laboris. Velit dolor fugiat mollit
   reprehenderit sunt non culpa elit commodo sint non. Commodo voluptate eiusmod non dolor. Pariatur exercitation quis
