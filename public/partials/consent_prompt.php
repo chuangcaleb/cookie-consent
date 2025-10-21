@@ -8,7 +8,7 @@ $is_resolved_consent = verify_is_resolved_consent($pdo);
       with the best experience.</p>
     <p>
       By continuing to access or use this site, you acknowledge and consent to our use of cookies in accordance with
-      our <a href="/terms.php">Terms & Conditions</a> and <a href="privacy-policy.php">Privacy Statement</a>.</p>
+      our <a href="/terms.php">Terms & Conditions</a> and <a href="privacy.php">Privacy Statement</a>.</p>
     <button id="acceptBtn">Accept</button>
     <button id="declineBtn">Decline</button>
   </div>
