@@ -23,6 +23,12 @@ $excluded = ['terms.php', 'privacy.php'];
   <link rel="shortcut icon" href='/assets/favicon/favicon.ico' />
   <link rel="manifest" href="/assets/site.webmanifest">
 </head>
+<script>
+  const overlay = document.getElementById('consent-overlay');
+  overlay.hidden = false;
+  document.body.classList.add('modal-open');
+</script>
+
 
 <body>
   <header>

@@ -1,11 +1,14 @@
-<div id="consent-box" class="flow">
-  <p>Cookies are necessary for this website to function properly, for performance measurement, and to provide you
-    with the best experience.</p>
-  <p>
-    By continuing to access or use this site, you acknowledge and consent to our use of cookies in accordance with
-    our <a href="/terms.php">Terms & Conditions</a> and <a href="privacy.php">Privacy Statement</a>.</p>
-  <button id="acceptBtn">Accept</button>
-  <button id="declineBtn">Decline</button>
+<div id="consent-overlay" tabindex="-1">
+  <div id="consent-box" class="flow" role="dialog" aria-modal="true" aria-labelledby="consent-title">
+    <h4 id="consent-title">🍪 We use cookies</h4>
+    <p>Cookies are necessary for this website to function properly, for performance measurement, and to provide you
+      with the best experience.</p>
+    <p>
+      By continuing to access or use this site, you acknowledge and consent to our use of cookies in accordance with
+      our <a href="/terms.php">Terms & Conditions</a> and <a href="privacy.php">Privacy Statement</a>.</p>
+    <button id="acceptBtn">Accept</button>
+    <button id="declineBtn">Decline</button>
+  </div>
 </div>
 
 <script>
@@ -14,7 +17,7 @@
       .then(r => r.json())
       .then(json => {
         if (json.status === 'ok') {
-          document.getElementById('consent-box').remove();
+          document.getElementById('consent-overlay').remove();
         } else {
           alert('Something went wrong');
         }
@@ -26,7 +29,7 @@
       .then(r => r.json())
       .then(json => {
         if (json.status === 'ok') {
-          document.getElementById('consent-box').remove();
+          document.getElementById('consent-overlay').remove();
         } else {
           alert('Something went wrong');
         }
