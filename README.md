@@ -165,7 +165,8 @@ php scripts/cleanup_expired_consents.php
 
 ## 🤖 Acknowledgements
 
-Note: This project's human effort was assisted with AI tooling.
+- This project's human effort was assisted with AI tooling.
+- [favicon.io] for emoji favicon.
 
 ## 📄 License
 
