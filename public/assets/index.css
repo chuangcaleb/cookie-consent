@@ -94,14 +94,14 @@ body:has(#consent-box) {
 
   background-color: var(--surface-3);
 
+  [data-action="accept"] {
+    background-color: var(--indigo-5);
+  }
+  [data-action="decline"] {
+    background-color: var(--surface-4);
+  }
+
   button + button {
     margin-inline-start: var(--size-2);
   }
-}
-
-#acceptBtn {
-  background-color: var(--indigo-5);
-}
-#declineBtn {
-  background-color: var(--surface-4);
 }

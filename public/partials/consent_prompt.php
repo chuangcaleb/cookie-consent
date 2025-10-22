@@ -6,34 +6,44 @@
     <p>
       By continuing to access or use this site, you acknowledge and consent to our use of cookies in accordance with
       our <a href="/terms.php">Terms & Conditions</a> and <a href="privacy.php">Privacy Statement</a>.</p>
-    <button id="acceptBtn">Accept</button>
-    <button id="declineBtn">Decline</button>
+    <button data-action="accept">Accept</button>
+    <button data-action="decline">Decline</button>
   </div>
 </div>
 
+
 <script>
-  document.getElementById('acceptBtn').addEventListener('click', function () {
-    fetch('/consent_accept.php', { method: 'POST' })
-      .then(r => r.json())
-      .then(json => {
-        if (json.status === 'ok') {
-          document.getElementById('consent-overlay').remove();
+  (() => {
+    const overlay = document.getElementById('consent-overlay');
+    if (!overlay) return;
+
+    const endpoints = {
+      accept: '/consent_accept.php',
+      decline: '/consent_decline.php'
+    };
+
+    overlay.addEventListener('click', async (e) => {
+      const btn = e.target.closest('button[data-action]');
+      if (!btn) return;
+
+      const action = btn.dataset.action;
+      const endpoint = endpoints[action];
+      if (!endpoint) return;
+
+      try {
+        const res = await fetch(endpoint, { method: 'POST' });
+        const json = await res.json();
+
+        if (json?.status === 'ok') {
+          overlay.remove();
         } else {
-          alert('Something went wrong');
+          console.warn(`Failed to ${action} cookies:`, json);
+          alert('Something went wrong. Please try again.');
         }
-      })
-      .catch(err => { alert('Network error'); console.error(err); });
-  });
-  document.getElementById('declineBtn').addEventListener('click', function () {
-    fetch('/consent_decline.php', { method: 'POST' })
-      .then(r => r.json())
-      .then(json => {
-        if (json.status === 'ok') {
-          document.getElementById('consent-overlay').remove();
-        } else {
-          alert('Something went wrong');
-        }
-      })
-      .catch(err => { alert('Network error'); console.error(err); });
-  });
+      } catch (err) {
+        console.error('Network error:', err);
+        alert('Network error. Please try again.');
+      }
+    });
+  })();
 </script>
