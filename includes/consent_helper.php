@@ -5,6 +5,9 @@ require_once __DIR__ . '/utils.php';
 
 use App\Config;
 
+/**
+ * Set a cookie to mark declined consent.
+ */
 function decline_consent(): void
 {
   $declinedAt = new DateTimeImmutable('now');
@@ -23,7 +26,10 @@ function decline_consent(): void
 
 /**
  * Check if expiry cookie exists and is valid.
- * Returns false if not present or expired.
+ *
+ * @param string $cookie_name Name of the cookie to check.
+ * @param string $initial_datetime_key Key in the cookie's JSON data that stores the initial timestamp.
+ * @return array|bool Returns cookie data if valid, or false if not present or expired.
  */
 function parse_expiry_cookie(string $cookie_name, string $initial_datetime_key, string $expiry_duration): array|bool
 {
@@ -60,13 +66,12 @@ function parse_expiry_cookie(string $cookie_name, string $initial_datetime_key, 
   return $data;
 }
 
-
 /**
  * Create a consent cookie and insert record to DB.
  *
  * @param PDO $pdo
  * @param int $version
- * @return array assoc with guid, accepted_at, version
+ * @return array Assoc with guid, accepted_at, version
  */
 function accept_consent(PDO $pdo, int $version = Config::CONSENT_COOKIE_VERSION): array
 {
@@ -110,6 +115,12 @@ function accept_consent(PDO $pdo, int $version = Config::CONSENT_COOKIE_VERSION)
 }
 
 
+/**
+ * Verify the consent cookie, on client and DB.
+ *
+ * @param PDO $pdo
+ * @return bool
+ */
 function verify_consent(PDO $pdo): bool
 {
   $cookie = parse_expiry_cookie(Config::CONSENT_COOKIE_NAME, 'accepted_at', Config::CONSENT_COOKIE_EXPIRE_INTERVAL);
@@ -149,20 +160,25 @@ function verify_consent(PDO $pdo): bool
 }
 
 /**
- * Verify consent both client + DB side.
- * Returns boolean, false if invalid or missing.
+ * Get consent state, on both client-side (for both decline cookie and consent cookie), and verified on DB-side.
+ *
+ * @param PDO $pdo
+ * @return bool False if invalid or missing
  */
 function verify_is_resolved_consent(PDO $pdo): bool
 {
-  // first, check for declined cookie
-  $is_cookie_declined = parse_expiry_cookie(Config::DECLINE_COOKIE_NAME, 'declined_at', Config::DECLINE_COOKIE_EXPIRE_INTERVAL);
-  $is_cookie_accepted = verify_consent($pdo);
+  // check for both declined cookie & consented cookie
+  $has_cookie_declined = parse_expiry_cookie(Config::DECLINE_COOKIE_NAME, 'declined_at', Config::DECLINE_COOKIE_EXPIRE_INTERVAL);
+  // for consented, does extra step to check on db
+  $has_cookie_consented = verify_consent($pdo);
 
   // edge case: if both cookies somehow exist, assume declined
-  if ($is_cookie_declined && $is_cookie_accepted) {
+  if ($has_cookie_declined && $has_cookie_consented) {
+    // remove consent cookie, keep decline cookie
     clear_cookie(Config::CONSENT_COOKIE_NAME);
+    return true;
   }
 
   // else: if either cookie exists and is valid, then don't show prompt
-  return $is_cookie_declined || $is_cookie_accepted;
+  return $has_cookie_declined || $has_cookie_consented;
 }

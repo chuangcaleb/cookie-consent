@@ -8,7 +8,6 @@ load_env(__DIR__ . '/../.env');
  * Central application configuration constants.
  *
  * This class holds immutable configuration values (DB, cookies, time, etc.)
- * following modern PHP best practices.
  */
 final class Config
 {

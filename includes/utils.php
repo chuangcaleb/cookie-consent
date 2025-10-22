@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Manually load environment variables from specified local file.
+ * @param string $file File path to env file.
+ */
 function load_env(string $file): void
 {
   if (!file_exists($file))
@@ -28,6 +32,7 @@ function generate_guid_v4(): string
 
 /**
  * Clear the client-side consent cookie
+ * @param string Cookie name.
  */
 function clear_cookie(string $name): void
 {
