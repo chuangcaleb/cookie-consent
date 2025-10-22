@@ -1,49 +1,87 @@
 # 🍪 Cookie Consent
 
-## 🏃 Running the app locally
+A lightweight and minimal PHP app that manages user cookie consent.
 
-### 📥 First-time install
+## 📦 Stack
 
-If you are on Mac, I prefer to use brew
+- ✅ PHP — web scripting language.
+- 🗄️ MySQL — persistent storage for consent records.
+- 🧩 Javascript — minimal, for fetching consent actions and updating UI
+- 🎨 CSS + [Open Props](https://open-props.style/) — minimal, for visual UI styling
+- 🐳 Docker — Deployable anywhere; works locally, or via container platforms.
 
-```shell
+### 🧰 Requirements
+
+- PHP ≥ 8.1 (with `pdo_mysql` extension)
+- MySQL ≥ 8.0
+- Bash (for migrations)
+- Optional: phpMyAdmin (for inspection)
+
+## 🏃 Running locally
+
+### 📥 First-time install (MacOS)
+
+If you are on MacOS, I prefer to use install with Homebrew:
+
+```sh
 brew install php mysql phpmyadmin
 ```
 
-Launch mysql
+Launch mysql service
 
-```shell
+```sh
 brew services start mysql
 ```
 
 ### 🏞️ Environment variables
 
-Could use `phpdotenv` for env vars, but opted for simple + manual reading. See `.env.example` for required environment variables. Ensure a `.env` file, no matter the environment.
+This project uses a simple .env file (manually loaded in PHP).
+You can copy from the example template:
 
-### 🗃️ Setup DB
+```sh
+cp .env.example .env
+```
 
-Set password for MySQL default user
+Then edit .env with your database credentials.
 
-```shell
-# Option A: interactive
-mysql_secure_installation
+> 💡 We intentionally avoid `phpdotenv` for simplicity. The Config class reads environment variables directly.
 
-# Option B: manual
-mysql -u root # ensure mysql is running
+### 🗃️ Database setup
+
+Set up a secure MySQL user
+
+```sql
+-- Option 1: quick dev setup
 ALTER USER 'root'@'localhost' IDENTIFIED BY 'YourStrongPassword123!';
 FLUSH PRIVILEGES;
-EXIT;
-# but instead of using `root`, you should create dev user
-# run in mysql (or via phpMyAdmin ui)
-CREATE USER 'dev'@'localhost' IDENTIFIED BY 'YourStrongPassword123!';
-GRANT INSERT, SELECT ON cookie_consent.* TO 'dev'@'localhost';
-FLUSH PRIVILEGES;
 
+-- Option 2: principle of least privilege, to not use `root` user
+CREATE USER 'dev'@'localhost' IDENTIFIED BY 'YourStrongPassword123!';
+CREATE DATABASE cookie_consent CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+GRANT ALL PRIVILEGES ON cookie_consent.* TO 'dev'@'localhost';
+FLUSH PRIVILEGES;
 ```
+
+### ✈️ Apply migrations
+
+Run all migrations (in order):
+
+```sh
+bash scripts/migrate.sh
+```
+
+> ⚠️ On cloud runners, you might need to disable SSL in scripts/migrate.sh if the default certs mismatch:
+>
+> ```text
+> --ssl=OFF \
+> --ssl-verify-server-cert=OFF \
+> ```
+
+These flags are only for containerized or CI/CD environments with self-signed database certs.
 
 Apply db migration
 
-```shell
+```sh
 bash scripts/migrate.sh
 ```
 
@@ -51,39 +89,84 @@ These following lines were required on my cloud build runner. MySQL uses a valid
 
 On your local machine, these lines may throw errors, because of mismatching MySQL version. They are safe to remove.
 
-```shell
+```sh
 # scripts/migrate.sh
 --ssl=OFF \
 --ssl-verify-server-cert=OFF \
 ```
 
-### 🚀 Launching frontend
+## 🚀 Launch the frontend
 
-Optionally serve phpmyadmin (installed via brew)
+Optionally serve phpMyAdmin
 
-```shell
+````sh
 cd /opt/homebrew/share/phpmyadmin
 php -S localhost:8080
-```
+````
 
-Serve frontend site
+Serve the PHP app
 
-```shell
+```sh
 php -S localhost:8000 -t public
 ```
 
-### 🧹 Cleanup
+Visit `http://localhost:8000`.
 
-Cleanup expired cookie consent records
+## 🧹 Maintenance
 
-- we want to clear records: keeping indefinitely violates data minimization principle + bloats storage
-- but deleting immediately is problematic
-  - may break auditability — we need a brief retention window for compliance logs
-  - may cause unnecessary writes + race conditions (especially on every client expire)
-- solution: script; manually or cron job
+Cleanup expired cookie consent records. We keep a short retention period to maintain compliance and avoid unnecessary database growth.
 
-```shell
+Run manually or via cron:
+
+```sh
 php scripts/cleanup_expired_consents.php
 ```
 
-Note: This project's effort was assisted with AI.
+<details>
+<summary>Rationale</summary>
+<ul>
+  <li>we want to clear records: keeping indefinitely violates data minimization principle + bloats storage</li>
+  <li>but deleting immediately is problematic
+    <ul>
+      <li>may break auditability — we need a brief retention window for compliance logs</li>
+      <li>may cause unnecessary writes + race conditions (especially on every client expire)</li>
+    </ul>
+  </li>
+  <li>solution: script; manually or cron job</li>
+</ul>
+
+</details>
+
+## 🏗️ Project Structure
+
+```filetree
+.
+├── public/                   # Web root (served via PHP built-in or Apache)
+│   ├── index.php             # Home page
+│   ├── partials/             # Shared header/footer components
+│   ├── assets/               # Web assets, served as-is
+│   └── [...]                 # Page and endpoint routes
+│
+├── includes/                 # Backend helpers
+│   ├── Config.php            # Static config class
+│   ├── db.php                # PDO connection
+│   ├── utils.php             # Generic utils
+│   └── cookie/[...].php      # Cookie consent verification logic
+│
+├── migrations/               # SQL schema migrations
+│   └── [migration_name].sql
+│
+├── scripts/                  # Admin scripts
+│
+├── .env.example
+├── Dockerfile
+└── README.md
+```
+
+## 🤖 Acknowledgements
+
+Note: This project's human effort was assisted with AI tooling.
+
+## 📄 License
+
+MIT © 2025 — Open for educational and practical reuse.
