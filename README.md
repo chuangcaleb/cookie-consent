@@ -1,4 +1,4 @@
-# Cookie Consent
+# 🍪 Cookie Consent
 
 ## 🏃 Running the app locally
 
@@ -85,3 +85,5 @@ Cleanup expired cookie consent records
 ```shell
 php scripts/cleanup_expired_consents.php
 ```
+
+Note: This project's effort was assisted with AI.

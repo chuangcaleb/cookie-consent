@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../includes/consent_helper.php';
+require_once __DIR__ . '/../includes/cookie/consent_actions.php';
 use App\Config;
 
 // Early reject, if not `POST` method

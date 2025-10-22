@@ -4,7 +4,7 @@ require_once __DIR__ . '/../../includes/config.php';
 use App\Config;
 Config::init();
 
-require_once __DIR__ . '/../../includes/consent_helper.php';
+require_once __DIR__ . '/../../includes/cookie/verify_is_resolved_consent.php';
 $is_resolved_consent = verify_is_resolved_consent($pdo);
 
 $currentPath = strtolower(trim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), '/'));
